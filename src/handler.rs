@@ -15,18 +15,23 @@ pub async fn handle_connection(mut inbound: TcpStream) -> tokio::io::Result<()> 
     let protocol = detect_protocol(&buffer[..n]);
 
     let backend_addr = match protocol {
-        Protocol::Http => cli.http,
-        Protocol::Https => cli.https,
-        Protocol::Ssh => cli.ssh,
-        Protocol::Rdp => cli.rdp,
+        Protocol::Http => cli.http.as_deref(),
+        Protocol::Https => cli.https.as_deref(),
+        Protocol::Ssh => cli.ssh.as_deref(),
+        Protocol::Rdp => cli.rdp.as_deref(),
         Protocol::Unknown => {
-            error!("unknown protocol, dropping");
+            error!("unknown protocol; dropping connection");
             return Ok(());
         }
     };
-    info!("serving with: {}", backend_addr);
+    let Some(addr) = backend_addr else {
+        error!("protocol {:?} not enabled", protocol);
+        return Ok(());
+    };
 
-    let mut outbound = TcpStream::connect(backend_addr).await?;
+    info!("serving with: {}", addr);
+
+    let mut outbound = TcpStream::connect(addr).await?;
 
     tokio::io::copy_bidirectional(&mut inbound, &mut outbound).await?;
 

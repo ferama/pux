@@ -7,15 +7,15 @@ pub struct Cli {
     #[arg(long, short, default_value = "0.0.0.0:5500")]
     pub listen: String,
 
-    #[arg(long, default_value = "127.0.0.1:80")]
-    pub http: String,
+    #[arg(long)]
+    pub http: Option<String>,
 
-    #[arg(long, default_value = "127.0.0.1:443")]
-    pub https: String,
+    #[arg(long)]
+    pub https: Option<String>,
 
-    #[arg(long, default_value = "127.0.0.1:22")]
-    pub ssh: String,
+    #[arg(long)]
+    pub ssh: Option<String>,
 
-    #[arg(long, default_value = "127.0.0.1:3389")]
-    pub rdp: String,
+    #[arg(long)]
+    pub rdp: Option<String>,
 }
