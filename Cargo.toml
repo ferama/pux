@@ -2,6 +2,11 @@
 name = "pux"
 version = "0.1.0"
 edition = "2024"
+authors = ["Marco Ferragina <marco.ferragina@gmail.com>"]
+readme = "README.md"
+homepage = "https://github.com/ferama/pux"
+license = "MIT"
+description = "A Lightweight, Async TCP Protocol Multiplexer in Rust (HTTP, HTTPS, SSH, RDP)"
 
 [dependencies]
 clap = { version = "4.5.37", features = ["derive"] }
@@ -9,3 +14,9 @@ tls-parser = "0.12.2"
 tokio = { version = "1.45.0", features = ["full"] }
 tracing = "0.1.41"
 tracing-subscriber = "0.3.19"
+
+[profile.release]
+lto = true            # Link Time Optimization
+codegen-units = 1     # Single codegen unit (smaller but slower compile)
+panic = "abort"       # Remove unwinding code (if you don't need backtraces)
+strip = true          # Strip symbols
