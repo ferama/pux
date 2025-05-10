@@ -17,10 +17,8 @@ jobs:
         include:
           - target: x86_64-pc-windows-msvc
             os: windows-latest
-            arch_name: x86_64
 
           - target: aarch64-pc-windows-msvc
-            arch_name: aarch64
             os: windows-latest
           
           - target: x86_64-unknown-linux-gnu
@@ -60,39 +58,39 @@ jobs:
         run: >
           cargo wix -v --no-build --nocapture
           --target ${{ matrix.target }} 
-          --output target/${{ matrix.target }}/release/pux-${{ matrix.arch_name }}.msi
+          --output target/${{ matrix.target }}/release/pux-${{ matrix.target }}.msi
       
       - name: Create ZIP (windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
           Compress-Archive -Path "target/${{ matrix.target }}/release/pux.exe" `
-            -DestinationPath "target/${{ matrix.target }}/release/pux-${{ matrix.arch_name }}.zip"
+            -DestinationPath "target/${{ matrix.target }}/release/pux-${{ matrix.target }}.zip"
       
       - name: Create tar.gz (linux)
         if: matrix.os != 'windows-latest'
         shell: bash
         run: |
           cd target/${{ matrix.target }}/release
-          tar czvf pux-${{ matrix.arch_name }}.tar.gz pux
+          tar czvf pux-${{ matrix.target }}.tar.gz pux
           cd -
       
       - name: Upload built binaries
         uses: actions/upload-artifact@v4
         if: matrix.os != 'windows-latest'
         with:
-          name: pux-${{ matrix.arch_name }}
+          name: pux-${{ matrix.target }}
           path: |
-            target/${{ matrix.target }}/release/pux-${{ matrix.arch_name }}.tar.gz
+            target/${{ matrix.target }}/release/pux-${{ matrix.target }}.tar.gz
 
       - name: Upload built binaries
         uses: actions/upload-artifact@v4
         if: matrix.os == 'windows-latest'
         with:
-          name: pux-${{ matrix.arch_name }}
+          name: pux-${{ matrix.target }}
           path: |
-            target/${{ matrix.target }}/release/pux-${{ matrix.arch_name }}.zip
-            target/${{ matrix.target }}/release/pux-${{ matrix.arch_name }}.msi
+            target/${{ matrix.target }}/release/pux-${{ matrix.target }}.zip
+            target/${{ matrix.target }}/release/pux-${{ matrix.target }}.msi
       
 
   release:
