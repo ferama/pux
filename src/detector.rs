@@ -57,29 +57,34 @@ fn detect_http(data: &[u8]) -> bool {
 }
 
 fn detect_https(data: &[u8]) -> bool {
-    if data.len() > 5 && data[0] == 0x16 && data[1] == 0x03 {
-        if let Ok((_rem, tls)) = parse_tls_plaintext(data) {
-            for msg in tls.msg {
-                if let TlsMessage::Handshake(TlsMessageHandshake::ClientHello(ref hello)) = msg {
-                    if let Some(ext_data) = hello.ext {
-                        // Now parse the raw extension bytes
-                        if let Ok((_rem, extensions)) = parse_tls_extensions(ext_data) {
-                            for ext in extensions {
-                                if let TlsExtension::SNI(sni_list) = ext {
-                                    for sni in sni_list {
-                                        // println!("Got SNI: {:?}", sni);
-                                        if sni.0 == SNIType::HostName {
-                                            return true;
-                                        }
-                                    }
-                                }
-                            }
-                        }
+    if data.len() <= 5 || data[0] != 0x16 || data[1] != 0x03 {
+        return false;
+    }
+
+    let Ok((_rem, tls)) = parse_tls_plaintext(data) else {
+        return false;
+    };
+
+    for msg in tls.msg {
+        if let TlsMessage::Handshake(TlsMessageHandshake::ClientHello(ref hello)) = msg {
+            let Some(ext_data) = hello.ext else {
+                continue;
+            };
+
+            let Ok((_rem, extensions)) = parse_tls_extensions(ext_data) else {
+                continue;
+            };
+
+            for ext in extensions {
+                if let TlsExtension::SNI(sni_list) = ext {
+                    if sni_list.iter().any(|sni| sni.0 == SNIType::HostName) {
+                        return true;
                     }
                 }
             }
         }
     }
+
     false
 }
 
@@ -111,9 +116,7 @@ fn detect_rdp(data: &[u8]) -> bool {
         && data[12] == 0x00   // Flags
         && data[13] == 0x08   // Length LSB
         && data[14] == 0x00
-    // Length MSB
     {
-        // We can also check the requested protocols field here (bytes 15–18)
         return true;
     }
 

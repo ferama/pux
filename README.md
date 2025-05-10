@@ -17,6 +17,34 @@ When a client connects to `pux`, the multiplexer:
 3. Forwards the connection (including the already-received bytes) to the corresponding backend.
 4. Pipes traffic bidirectionally for the life of the connection.
 
+```
+                          ┌─────────────┐
+                          │   Client    │
+                          └─────┬───────┘
+                                │
+                      TCP Connection to Port 5500 (or any, 443?)
+                                │
+                                ▼
+                         ┌───────────────┐
+                         │    Pux        │
+                         │ (Multiplexer) |
+                         └─────┬─────────┘
+ ┌──────────────┬──────────────┬──────────────┬──────────────┐
+ │              │              │              │              │
+ ▼              ▼              ▼              ▼              ▼
+SSH           HTTPS           HTTP           RDP         Unknown
+"SSH-"       TLS Hello      GET/POST...    RDP SYN       Fallback
+banner       w/ SNI          Methods       Packet
+
+ │              │              │              │
+ ▼              ▼              ▼              ▼
+127.0.0.1:22  127.0.0.1:443  127.0.0.1:80  192.168.1.2:3389
+
+  SSH         HTTPS         HTTP         RDP
+ Server       Server       Server       Server
+
+```
+
 ## 🏁 Quick Start
 
 ### Build
