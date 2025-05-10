@@ -5,16 +5,16 @@ use tls_parser::{
 };
 
 fn detect_ssh(data: &[u8]) -> bool {
-    // SSH version should start with "SSH-" followed by the version, e.g., "SSH-2.0-OpenSSH_8.1"
-    if data.len() < 5 || !data.starts_with(b"SSH-") {
-        return false;
-    }
+    // RFC 4253: SSH banner must start with "SSH-" and follow "SSH-protoversion-softwareversion"
+    // e.g., "SSH-2.0-OpenSSH_8.2\r\n"
 
-    // Ensure "SSH-" is followed by a version string (e.g., "SSH-2.0-OpenSSH_8.1")
-    if let Some(next_char) = data.get(4) {
-        if *next_char == b' ' {
-            // After "SSH-" it should be followed by "2.0" or something valid like "SSH-2.0-..."
-            return data[4..].starts_with(b"2.0");
+    if let Ok(text) = std::str::from_utf8(data) {
+        if text.starts_with("SSH-") {
+            // Grab the first line (banner)
+            if let Some(banner_line) = text.lines().next() {
+                // Match SSH protoversion: "SSH-2.0" or "SSH-1.99" (fallback version)
+                return banner_line.starts_with("SSH-2.0") || banner_line.starts_with("SSH-1.99");
+            }
         }
     }
 
@@ -67,7 +67,7 @@ fn detect_https(data: &[u8]) -> bool {
                             for ext in extensions {
                                 if let TlsExtension::SNI(sni_list) = ext {
                                     for sni in sni_list {
-                                        println!("Got SNI: {:?}", sni);
+                                        // println!("Got SNI: {:?}", sni);
                                         if sni.0 == SNIType::HostName {
                                             return true;
                                         }

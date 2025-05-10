@@ -1,7 +1,6 @@
 use clap::Parser;
 
-/// Backend addresses for protocol multiplexer
-#[derive(Parser, Debug)]
+#[derive(Parser)]
 #[command(author, version, about)]
 pub struct Cli {
     /// Address and port to listen on (e.g., 0.0.0.0:9000)
