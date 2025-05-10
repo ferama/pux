@@ -1,0 +1,118 @@
+name: Release
+
+# Controls when the action will run. 
+on:
+  push:
+    tags:
+      - '*'
+    branches:
+      - '**'
+
+jobs:
+  build:
+    name: Build release binaries
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            arch_name: x86_64
+
+          - target: aarch64-pc-windows-msvc
+            arch_name: aarch64
+            os: windows-latest
+          
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+          
+          - target: arm-unknown-linux-musleabihf
+            os: ubuntu-latest
+          
+          - target: aarch64-apple-darwin
+            os: macos-latest
+          
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Rust (MSVC)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+      
+      - name: Install cargo-wix
+        if: matrix.os == 'windows-latest'
+        run: |
+          cargo install --version 0.3.9 cargo-wix
+        shell: powershell
+
+      - name: Build release binary
+        run: cargo build --release --target ${{ matrix.target }}
+      
+      - name: Build MSI Installer
+        if: matrix.os == 'windows-latest'
+        run: >
+          cargo wix -v --no-build --nocapture
+          --target ${{ matrix.target }} 
+          --output target/${{ matrix.target }}/release/pux-${{ matrix.arch_name }}.msi
+      
+      - name: Create ZIP (windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "target/${{ matrix.target }}/release/pux.exe" `
+            -DestinationPath "target/${{ matrix.target }}/release/pux-${{ matrix.arch_name }}.zip"
+      
+      - name: Create tar.gz (linux)
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: |
+          cd target/${{ matrix.target }}/release
+          tar czvf pux-${{ matrix.arch_name }}.tar.gz pux
+          cd -
+      
+      - name: Upload built binaries
+        uses: actions/upload-artifact@v4
+        if: matrix.os != 'windows-latest'
+        with:
+          name: pux-${{ matrix.arch_name }}
+          path: |
+            target/${{ matrix.target }}/release/pux-${{ matrix.arch_name }}.tar.gz
+
+      - name: Upload built binaries
+        uses: actions/upload-artifact@v4
+        if: matrix.os == 'windows-latest'
+        with:
+          name: pux-${{ matrix.arch_name }}
+          path: |
+            target/${{ matrix.target }}/release/pux-${{ matrix.arch_name }}.zip
+            target/${{ matrix.target }}/release/pux-${{ matrix.arch_name }}.msi
+      
+
+  release:
+    name: Upload Release Artifacts
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Checksums
+        run: |
+          for file in artifacts/wsw-*/wsw-*; do openssl dgst -sha256 -r "$file" | awk '{print $1}' > "${file}.sha256"; done
+          find artifacts
+      
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          artifacts: artifacts/**/*
+          token: ${{ secrets.GITHUB_TOKEN }}
