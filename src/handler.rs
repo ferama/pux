@@ -29,8 +29,20 @@ pub async fn handle_connection(mut stream: TcpStream) -> tokio::io::Result<()> {
             }
         }
     };
-    let Some(addr) = backend_addr else {
-        error!("protocol {:?} not enabled", protocol);
+
+    let addr = if let Some(addr) = backend_addr {
+        addr
+    } else if let Some(fallback) = cli.fallback.as_deref() {
+        warn!(
+            "protocol {:?} detected but not enabled, using fallback: {}",
+            protocol, fallback
+        );
+        fallback
+    } else {
+        error!(
+            "protocol {:?} not enabled and no fallback provided",
+            protocol
+        );
         return Ok(());
     };
 

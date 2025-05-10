@@ -19,7 +19,12 @@ async fn main() -> tokio::io::Result<()> {
 
     let cli = Cli::parse();
     // At least one backend must be provided
-    if cli.http.is_none() && cli.https.is_none() && cli.ssh.is_none() && cli.rdp.is_none() {
+    if cli.http.is_none()
+        && cli.https.is_none()
+        && cli.ssh.is_none()
+        && cli.rdp.is_none()
+        && cli.fallback.is_none()
+    {
         println!("At least one backend must be configured\n");
         let help = Cli::command().render_help();
         println!("{}", help.ansi());
