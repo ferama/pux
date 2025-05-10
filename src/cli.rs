@@ -11,19 +11,19 @@ pub struct Cli {
     #[arg(long)]
     pub fallback: Option<String>,
 
-    /// Set http uri (ex: 127.0.0.1:80)
+    /// Set http backend (ex: 127.0.0.1:80)
     #[arg(long)]
     pub http: Option<String>,
 
-    /// Set https uri (ex: 127.0.0.1:443)
+    /// Set https backend (ex: 127.0.0.1:443)
     #[arg(long)]
     pub https: Option<String>,
 
-    /// Set ssh uri (ex: 127.0.0.1:22)
+    /// Set ssh backend (ex: 127.0.0.1:22)
     #[arg(long)]
     pub ssh: Option<String>,
 
-    /// Set rdp uri (ex: 127.0.0.1:3389)
+    /// Set rdp backend (ex: 127.0.0.1:3389)
     #[arg(long)]
     pub rdp: Option<String>,
 }
