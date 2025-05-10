@@ -1,4 +1,4 @@
-# Pux — Protocol Multiplexer
+# 🧵 Pux — Protocol Multiplexer
 
 **Pux** is a lightweight, asynchronous TCP protocol multiplexer written in Rust. It listens on a single port and forwards incoming connections to protocol-specific backend services by detecting the protocol in real time.
 
