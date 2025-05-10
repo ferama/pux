@@ -44,7 +44,11 @@ async fn main() -> tokio::io::Result<()> {
                         info!("connection from {addr} closed");
                     }
                     _ => {
-                        error!("error handling connection from {addr}: {e}");
+                        if e.kind() != ErrorKind::NotConnected {
+                            error!("error handling connection from {addr}: {e}");
+                        } else {
+                            info!("client {addr} disconnected before connection was established");
+                        }
                     }
                 }
             }

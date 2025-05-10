@@ -7,6 +7,10 @@ pub struct Cli {
     #[arg(long, short, default_value = "0.0.0.0:5500")]
     pub listen: String,
 
+    /// Optional fallback backend for unknown protocols
+    #[arg(long)]
+    pub fallback: Option<String>,
+
     /// Set http uri (ex: 127.0.0.1:80)
     #[arg(long)]
     pub http: Option<String>,
