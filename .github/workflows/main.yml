@@ -44,14 +44,23 @@ jobs:
           toolchain: stable
           target: ${{ matrix.target }}
       
+      - name: Setup | Install cross [Linux]
+        if: matrix.os == 'ubuntu-latest'
+        uses: taiki-e/install-action@cross
+      
       - name: Install cargo-wix
         if: matrix.os == 'windows-latest'
         run: |
           cargo install --version 0.3.9 cargo-wix
         shell: powershell
 
-      - name: Build release binary
+      - name: Build release [Cargo]
+        if: matrix.os != 'ubuntu-latest'
         run: cargo build --release --target ${{ matrix.target }}
+      
+      - name: Build release [Cross]
+        if: matrix.os == 'ubuntu-latest'
+        run: cross build --release --target ${{ matrix.target }}
       
       - name: Build MSI Installer
         if: matrix.os == 'windows-latest'
@@ -105,7 +114,7 @@ jobs:
 
       - name: Checksums
         run: |
-          for file in artifacts/wsw-*/wsw-*; do openssl dgst -sha256 -r "$file" | awk '{print $1}' > "${file}.sha256"; done
+          for file in artifacts/pux-*/pux-*; do openssl dgst -sha256 -r "$file" | awk '{print $1}' > "${file}.sha256"; done
           find artifacts
       
       - name: Create GitHub Release
