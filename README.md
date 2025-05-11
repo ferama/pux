@@ -68,13 +68,14 @@ Only the protocols you specify will be enabled. At least one backend is required
 
 ## 🛠 CLI Options
 
-| Option     | Description                        | Required |
-|------------|------------------------------------|----------|
-| `--listen` | Address and port to listen on      | ✅ Yes   |
-| `--http`   | Backend for HTTP clients           | Optional |
-| `--https`  | Backend for HTTPS (TLS) clients    | Optional |
-| `--ssh`    | Backend for SSH clients            | Optional |
-| `--rdp`    | Backend for RDP clients            | Optional |
+| Option      | Description                                             | Required |
+|-------------|---------------------------------------------------------|----------|
+| `--listen`  | Address and port to listen on                           | ✅ Yes   |
+| `--fallback`| Fallback Backend (for undetected/unknown protocol)      | Optional |
+| `--http`    | Backend for HTTP clients                                | Optional |
+| `--https`   | Backend for HTTPS (TLS) clients                         | Optional |
+| `--ssh`     | Backend for SSH clients                                 | Optional |
+| `--rdp`     | Backend for RDP clients                                 | Optional |
 
 > ✅ At least one backend must be configured.
 
