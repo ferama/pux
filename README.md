@@ -22,7 +22,7 @@ When a client connects to `pux`, the multiplexer:
                           │   Client    │
                           └─────┬───────┘
                                 │
-                      TCP Connection to Port 5500 (or any, 443?)
+                      TCP Connection to pux Port 5500 (or any, 443?)
                                 │
                                 ▼
                          ┌───────────────┐
