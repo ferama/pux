@@ -9,7 +9,7 @@ license = "MIT"
 description = "A Lightweight, Async TCP Protocol Multiplexer in Rust (HTTP, HTTPS, SSH, RDP)"
 
 [dependencies]
-clap = { version = "4.5.39", features = ["derive"] }
+clap = { version = "4.5.40", features = ["derive"] }
 tls-parser = "0.12.2"
 tokio = { version = "1.45.1", features = ["full"] }
 tracing = "0.1.41"
